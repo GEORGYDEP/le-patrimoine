@@ -1,0 +1,2284 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le Patrimoine — Jeu Éducatif Comptable</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #0a0e1a;
+  --bg-card: #111827;
+  --bg-card-alt: #1a2236;
+  --accent-gold: #f0b429;
+  --accent-gold-dim: #d49a1a;
+  --accent-blue: #3b82f6;
+  --accent-green: #10b981;
+  --accent-red: #ef4444;
+  --accent-purple: #a855f7;
+  --accent-orange: #f97316;
+  --text-main: #e8eaf0;
+  --text-dim: #8892a8;
+  --text-bright: #ffffff;
+  --border: #1e293b;
+  --glass: rgba(17, 24, 39, 0.85);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: 
+    radial-gradient(ellipse at 20% 0%, rgba(59,130,246,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 100%, rgba(240,180,41,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 50%, rgba(168,85,247,0.04) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ===== LAYOUT ===== */
+.app-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 20px 60px;
+}
+
+/* ===== HEADER ===== */
+.hero {
+  text-align: center;
+  padding: 48px 20px 36px;
+  position: relative;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, rgba(240,180,41,0.15), rgba(240,180,41,0.05));
+  border: 1px solid rgba(240,180,41,0.25);
+  border-radius: 50px;
+  padding: 6px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent-gold);
+  letter-spacing: 0.5px;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, #fff 0%, #f0b429 50%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 12px;
+}
+
+.hero p {
+  color: var(--text-dim);
+  font-size: 1.05rem;
+  max-width: 560px;
+  margin: 0 auto 28px;
+  line-height: 1.6;
+}
+
+/* ===== PROGRESS BAR ===== */
+.global-progress {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.progress-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 140px;
+}
+
+.progress-info .label {
+  font-size: 12px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.progress-info .value {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+
+.progress-bar-wrap {
+  flex: 1;
+  min-width: 200px;
+}
+
+.progress-bar-bg {
+  height: 12px;
+  background: var(--bg-deep);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-gold));
+  border-radius: 6px;
+  transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+}
+
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 40px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+  border-radius: 6px;
+}
+
+.progress-steps {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.progress-step {
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  transition: background 0.4s;
+}
+
+.progress-step.done { background: var(--accent-green); }
+.progress-step.active { background: var(--accent-gold); animation: pulse-step 1.5s infinite; }
+
+@keyframes pulse-step {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.stars-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.star { font-size: 1.4rem; filter: grayscale(1) opacity(0.3); transition: all 0.3s; }
+.star.earned { filter: none; animation: pop 0.4s ease; }
+@keyframes pop { 0% { transform: scale(0.5); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+
+/* ===== EXERCISE CARDS ===== */
+.exercises-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.exercise-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.exercise-card:hover {
+  border-color: rgba(240,180,41,0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.exercise-card.locked { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+.exercise-card.completed { border-color: rgba(16,185,129,0.3); }
+
+.exercise-card .ex-number {
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 1.2rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  color: #fff;
+}
+
+.ex-number.c1 { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+.ex-number.c2 { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+.ex-number.c3 { background: linear-gradient(135deg, #f97316, #ea580c); }
+.ex-number.c4 { background: linear-gradient(135deg, #10b981, #059669); }
+.ex-number.c5 { background: linear-gradient(135deg, #ec4899, #db2777); }
+.ex-number.c6 { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+.ex-number.c7 { background: linear-gradient(135deg, #f0b429, #d49a1a); }
+
+.ex-content { flex: 1; }
+.ex-content h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
+.ex-content p { font-size: 0.85rem; color: var(--text-dim); }
+
+.ex-status {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 50px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.ex-status.todo { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
+.ex-status.done { background: rgba(16,185,129,0.15); color: var(--accent-green); }
+.ex-status.lock { background: rgba(136,146,168,0.1); color: var(--text-dim); }
+
+/* ===== EXERCISE VIEW ===== */
+.exercise-view {
+  display: none;
+  animation: fadeUp 0.5s ease;
+}
+
+.exercise-view.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ex-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.btn-back {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-back:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
+
+.ex-header-text h2 {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.ex-header-text p {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+/* ===== THEORY BOX ===== */
+.theory-box {
+  background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(168,85,247,0.05));
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+.theory-box .theory-title {
+  font-weight: 700;
+  color: var(--accent-blue);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theory-box strong { color: var(--accent-gold); }
+.theory-box .formula {
+  font-family: 'Space Mono', monospace;
+  background: rgba(240,180,41,0.1);
+  border: 1px solid rgba(240,180,41,0.2);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  display: inline-block;
+  margin: 8px 0;
+  color: var(--accent-gold);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+/* ===== GAME AREA ===== */
+.game-area {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 20px;
+}
+
+.scenario-box {
+  background: var(--bg-card-alt);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  border-left: 4px solid var(--accent-gold);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.scenario-box .scenario-name {
+  font-weight: 700;
+  color: var(--accent-gold);
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+/* ===== DRAG & DROP ZONES ===== */
+.dnd-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dnd-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-height: 60px;
+  padding: 16px;
+  background: var(--bg-deep);
+  border-radius: var(--radius-sm);
+  border: 2px dashed var(--border);
+}
+
+.dnd-item {
+  padding: 8px 16px;
+  background: var(--bg-card-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: grab;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.dnd-item:hover { border-color: var(--accent-gold); transform: translateY(-1px); }
+.dnd-item:active { cursor: grabbing; }
+.dnd-item.correct { background: rgba(16,185,129,0.15); border-color: var(--accent-green); color: var(--accent-green); }
+.dnd-item.wrong { background: rgba(239,68,68,0.15); border-color: var(--accent-red); color: var(--accent-red); animation: shake 0.4s; }
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+.drop-zones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .drop-zones { grid-template-columns: 1fr; }
+}
+
+.drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  min-height: 140px;
+  transition: all 0.3s;
+}
+
+.drop-zone.drag-over {
+  border-color: var(--accent-gold);
+  background: rgba(240,180,41,0.05);
+}
+
+.drop-zone .zone-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.zone-title.avoirs { color: var(--accent-green); }
+.zone-title.dettes { color: var(--accent-red); }
+.zone-title.actif-immo-inc { color: var(--accent-purple); }
+.zone-title.actif-immo-corp { color: var(--accent-blue); }
+.zone-title.actif-circ { color: var(--accent-orange); }
+.zone-title.cap-propres { color: var(--accent-green); }
+.zone-title.dettes-lt { color: var(--accent-red); }
+.zone-title.dettes-ct { color: #f472b6; }
+
+.drop-zone .zone-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 40px;
+}
+
+/* ===== QUIZ STYLES ===== */
+.quiz-question {
+  margin-bottom: 24px;
+}
+
+.quiz-question .q-text {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 12px;
+}
+
+.quiz-question .q-num {
+  color: var(--accent-gold);
+  font-family: 'Space Mono', monospace;
+  margin-right: 8px;
+}
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quiz-option {
+  padding: 12px 18px;
+  background: var(--bg-card-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.quiz-option:hover { border-color: var(--accent-blue); background: rgba(59,130,246,0.08); }
+.quiz-option.selected { border-color: var(--accent-blue); background: rgba(59,130,246,0.12); }
+.quiz-option.correct-answer { border-color: var(--accent-green); background: rgba(16,185,129,0.12); color: var(--accent-green); }
+.quiz-option.wrong-answer { border-color: var(--accent-red); background: rgba(239,68,68,0.1); color: var(--accent-red); }
+.quiz-option.disabled { pointer-events: none; }
+
+/* ===== INPUT STYLES ===== */
+.calc-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 20px;
+}
+
+.calc-field label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.calc-field input {
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  color: var(--text-main);
+  font-family: 'Space Mono', monospace;
+  font-size: 1rem;
+  width: 160px;
+  transition: border-color 0.2s;
+}
+
+.calc-field input:focus { outline: none; border-color: var(--accent-gold); }
+.calc-field input.correct-input { border-color: var(--accent-green); background: rgba(16,185,129,0.08); }
+.calc-field input.wrong-input { border-color: var(--accent-red); background: rgba(239,68,68,0.08); }
+
+/* ===== BILAN TABLE ===== */
+.bilan-table-wrap {
+  overflow-x: auto;
+  margin: 16px 0;
+}
+
+.bilan-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.85rem;
+}
+
+.bilan-table th {
+  background: var(--bg-deep);
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--accent-gold);
+}
+
+.bilan-table td {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.bilan-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.bilan-table .col-label { font-weight: 600; color: var(--text-main); }
+.bilan-table .col-amount {
+  text-align: right;
+  font-family: 'Space Mono', monospace;
+  white-space: nowrap;
+}
+
+.bilan-table .total-row td {
+  border-top: 2px solid var(--accent-gold);
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+
+.bilan-table input {
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: var(--text-main);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem;
+  width: 120px;
+  text-align: right;
+}
+
+.bilan-table input:focus { outline: none; border-color: var(--accent-gold); }
+
+/* ===== ORDER LIST ===== */
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.order-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-card-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: grab;
+  transition: all 0.2s;
+}
+
+.order-item:active { cursor: grabbing; }
+.order-item:hover { border-color: var(--accent-gold); }
+
+.order-item .order-num {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--bg-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.order-item .order-label { font-size: 0.9rem; }
+.order-item .drag-handle { margin-left: auto; color: var(--text-dim); font-size: 1.1rem; }
+
+/* ===== BUTTONS ===== */
+.btn {
+  padding: 12px 28px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.25s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-dim));
+  color: #000;
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(240,180,41,0.3); }
+
+.btn-secondary {
+  background: var(--bg-card-alt);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { border-color: var(--text-dim); }
+
+.btn-success {
+  background: linear-gradient(135deg, var(--accent-green), #059669);
+  color: #fff;
+}
+
+.btn-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+/* ===== FEEDBACK ===== */
+.feedback {
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  margin-top: 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: none;
+  animation: fadeUp 0.3s ease;
+}
+
+.feedback.show { display: block; }
+.feedback.success { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); color: var(--accent-green); }
+.feedback.error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: var(--accent-red); }
+.feedback.info { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); color: var(--accent-blue); }
+
+/* ===== SCORE MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-overlay.show { display: flex; }
+
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  max-width: 440px;
+  width: 100%;
+  animation: fadeUp 0.5s ease;
+}
+
+.modal .big-emoji { font-size: 4rem; margin-bottom: 16px; }
+.modal h3 { font-size: 1.6rem; font-weight: 800; margin-bottom: 8px; }
+.modal .modal-score {
+  font-family: 'Space Mono', monospace;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+  margin: 16px 0;
+}
+.modal p { color: var(--text-dim); margin-bottom: 24px; line-height: 1.6; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 640px) {
+  .global-progress { flex-direction: column; align-items: stretch; }
+  .game-area { padding: 18px; }
+  .exercise-card { flex-direction: column; text-align: center; gap: 12px; }
+  .drop-zones { grid-template-columns: 1fr; }
+  .drop-zones.six-zones { grid-template-columns: 1fr; }
+  .calc-group { flex-direction: column; align-items: stretch; }
+  .calc-field input { width: 100%; }
+}
+
+.drop-zones.six-zones {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 900px) {
+  .drop-zones.six-zones { grid-template-columns: 1fr 1fr; }
+}
+
+/* ===== ANIMATIONS ===== */
+.confetti-container {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 999;
+  overflow: hidden;
+}
+
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  top: -10px;
+  animation: confetti-fall linear forwards;
+}
+
+@keyframes confetti-fall {
+  to { top: 110vh; transform: rotate(720deg); }
+}
+
+/* Tooltip for theory hints */
+.hint-btn {
+  font-size: 0.8rem;
+  color: var(--accent-blue);
+  cursor: pointer;
+  text-decoration: underline;
+  display: inline-block;
+  margin-top: 8px;
+}
+
+.hint-content {
+  display: none;
+  background: rgba(59,130,246,0.08);
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-top: 8px;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.hint-content.show { display: block; }
+
+/* Bilan side by side */
+.bilan-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+
+@media (max-width: 700px) {
+  .bilan-split { grid-template-columns: 1fr; }
+}
+
+.bilan-side {
+  background: var(--bg-card-alt);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.bilan-side-header {
+  padding: 12px 16px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bilan-side-header.actif-h { background: rgba(59,130,246,0.12); color: var(--accent-blue); }
+.bilan-side-header.passif-h { background: rgba(240,180,41,0.12); color: var(--accent-gold); }
+
+.bilan-rows { padding: 8px; }
+
+.bilan-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.83rem;
+  transition: background 0.2s;
+}
+
+.bilan-row:hover { background: rgba(255,255,255,0.03); }
+.bilan-row.sub-cat { font-weight: 600; color: var(--text-dim); font-size: 0.78rem; margin-top: 6px; text-transform: uppercase; letter-spacing: 0.3px; }
+.bilan-row.total-row { border-top: 2px solid var(--accent-gold); font-weight: 700; color: var(--accent-gold); margin-top: 8px; padding-top: 10px; }
+
+.bilan-row select {
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 8px;
+  color: var(--text-main);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.bilan-row select:focus { outline: none; border-color: var(--accent-gold); }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- ===== HERO ===== -->
+  <div class="hero">
+    <div class="hero-badge">📊 Comptabilité — 4e TQ</div>
+    <h1>Le Patrimoine</h1>
+    <p>Du patrimoine personnel au bilan d'entreprise : maîtrise chaque notion à travers 7 défis progressifs !</p>
+  </div>
+
+  <!-- ===== GLOBAL PROGRESS ===== -->
+  <div class="global-progress">
+    <div class="progress-info">
+      <span class="label">Score total</span>
+      <span class="value" id="totalScore">0 / 0</span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressFill" style="width: 0%"></div>
+      </div>
+      <div class="progress-steps" id="progressSteps"></div>
+    </div>
+    <div class="stars-display" id="starsDisplay"></div>
+  </div>
+
+  <!-- ===== MENU ===== -->
+  <div id="menuView">
+    <div class="exercises-grid" id="exerciseList"></div>
+  </div>
+
+  <!-- ===== EXERCISE VIEWS ===== -->
+  <div id="exerciseContainer"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="big-emoji" id="modalEmoji">🎉</div>
+    <h3 id="modalTitle">Exercice terminé !</h3>
+    <div class="modal-score" id="modalScore">8 / 10</div>
+    <p id="modalMsg">Excellent travail !</p>
+    <div class="btn-group" style="justify-content: center;">
+      <button class="btn btn-secondary" onclick="closeModal()">Retour au menu</button>
+      <button class="btn btn-primary" id="modalNextBtn" onclick="goNextExercise()">Exercice suivant →</button>
+    </div>
+  </div>
+</div>
+
+<div class="confetti-container" id="confettiContainer"></div>
+
+<script>
+// =======================================
+// DATA & STATE
+// =======================================
+const EXERCISES = [
+  {
+    id: 1,
+    title: "Avoirs ou Dettes ?",
+    desc: "Classe les éléments du patrimoine personnel de Lucas.",
+    color: "c1",
+    type: "classify-personal"
+  },
+  {
+    id: 2,
+    title: "Calcul du Capital",
+    desc: "Applique la formule Capital = Avoirs - Dettes sur 3 scénarios.",
+    color: "c2",
+    type: "calculate-capital"
+  },
+  {
+    id: 3,
+    title: "Le Vocabulaire du Patrimoine",
+    desc: "Maîtrise les termes : patrimoine, créance, prêt, emprunt…",
+    color: "c3",
+    type: "vocabulary-quiz"
+  },
+  {
+    id: 4,
+    title: "Actif ou Passif ?",
+    desc: "Classe les éléments d'une entreprise dans les bonnes catégories du bilan.",
+    color: "c4",
+    type: "classify-enterprise"
+  },
+  {
+    id: 5,
+    title: "Liquidité & Exigibilité",
+    desc: "Classe les éléments par ordre de liquidité et d'exigibilité.",
+    color: "c5",
+    type: "liquidity-order"
+  },
+  {
+    id: 6,
+    title: "Construis le Bilan",
+    desc: "Établis le bilan complet de la Boulangerie 'Au Pain Doré'.",
+    color: "c6",
+    type: "build-bilan"
+  },
+  {
+    id: 7,
+    title: "Défi Final : Restaurant Le Gourmet",
+    desc: "Analyse complète du patrimoine d'un restaurant — le test ultime !",
+    color: "c7",
+    type: "final-challenge"
+  }
+];
+
+let state = {
+  scores: {},
+  maxScores: {},
+  completed: new Set(),
+  currentEx: null
+};
+
+// Try to load from localStorage
+try {
+  const saved = JSON.parse(localStorage.getItem('patrimoine-game'));
+  if (saved) {
+    state.scores = saved.scores || {};
+    state.maxScores = saved.maxScores || {};
+    state.completed = new Set(saved.completed || []);
+  }
+} catch(e) {}
+
+function saveState() {
+  try {
+    localStorage.setItem('patrimoine-game', JSON.stringify({
+      scores: state.scores,
+      maxScores: state.maxScores,
+      completed: Array.from(state.completed)
+    }));
+  } catch(e) {}
+}
+
+// =======================================
+// UI RENDERING
+// =======================================
+function renderMenu() {
+  document.getElementById('menuView').style.display = 'block';
+  document.getElementById('exerciseContainer').innerHTML = '';
+  
+  const list = document.getElementById('exerciseList');
+  list.innerHTML = '';
+  
+  EXERCISES.forEach((ex, i) => {
+    const isCompleted = state.completed.has(ex.id);
+    const isLocked = i > 0 && !state.completed.has(EXERCISES[i-1].id);
+    
+    const card = document.createElement('div');
+    card.className = `exercise-card ${isCompleted ? 'completed' : ''} ${isLocked ? 'locked' : ''}`;
+    card.onclick = () => !isLocked && startExercise(ex.id);
+    
+    let statusHtml, statusClass;
+    if (isCompleted) { statusHtml = '✓ Réussi'; statusClass = 'done'; }
+    else if (isLocked) { statusHtml = '🔒 Verrouillé'; statusClass = 'lock'; }
+    else { statusHtml = '→ Commencer'; statusClass = 'todo'; }
+    
+    card.innerHTML = `
+      <div class="ex-number ${ex.color}">${ex.id}</div>
+      <div class="ex-content">
+        <h3>${ex.title}</h3>
+        <p>${ex.desc}</p>
+      </div>
+      <span class="ex-status ${statusClass}">${statusHtml}</span>
+    `;
+    list.appendChild(card);
+  });
+  
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = Object.values(state.scores).reduce((a, b) => a + b, 0);
+  const max = Object.values(state.maxScores).reduce((a, b) => a + b, 0);
+  document.getElementById('totalScore').textContent = `${total} / ${max || '—'}`;
+  
+  const pct = max > 0 ? (total / max * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  
+  // Steps
+  const stepsEl = document.getElementById('progressSteps');
+  stepsEl.innerHTML = '';
+  EXERCISES.forEach(ex => {
+    const s = document.createElement('div');
+    s.className = `progress-step ${state.completed.has(ex.id) ? 'done' : (state.currentEx === ex.id ? 'active' : '')}`;
+    stepsEl.appendChild(s);
+  });
+  
+  // Stars
+  const starsEl = document.getElementById('starsDisplay');
+  const earned = state.completed.size;
+  starsEl.innerHTML = '';
+  for (let i = 0; i < 7; i++) {
+    const s = document.createElement('span');
+    s.className = `star ${i < earned ? 'earned' : ''}`;
+    s.textContent = '⭐';
+    starsEl.appendChild(s);
+  }
+}
+
+// =======================================
+// EXERCISE LAUNCHER
+// =======================================
+function startExercise(id) {
+  state.currentEx = id;
+  document.getElementById('menuView').style.display = 'none';
+  
+  const ex = EXERCISES.find(e => e.id === id);
+  const container = document.getElementById('exerciseContainer');
+  
+  const view = document.createElement('div');
+  view.className = 'exercise-view active';
+  view.innerHTML = `
+    <div class="ex-header">
+      <button class="btn-back" onclick="backToMenu()">←</button>
+      <div class="ex-header-text">
+        <h2>Exercice ${ex.id} : ${ex.title}</h2>
+        <p>${ex.desc}</p>
+      </div>
+    </div>
+    <div id="exContent"></div>
+  `;
+  
+  container.innerHTML = '';
+  container.appendChild(view);
+  
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  
+  // Build exercise content
+  switch(ex.type) {
+    case 'classify-personal': buildEx1(); break;
+    case 'calculate-capital': buildEx2(); break;
+    case 'vocabulary-quiz': buildEx3(); break;
+    case 'classify-enterprise': buildEx4(); break;
+    case 'liquidity-order': buildEx5(); break;
+    case 'build-bilan': buildEx6(); break;
+    case 'final-challenge': buildEx7(); break;
+  }
+  
+  updateProgress();
+}
+
+function backToMenu() {
+  state.currentEx = null;
+  renderMenu();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// =======================================
+// EXERCISE 1: Classify Avoirs / Dettes (Personal)
+// =======================================
+function buildEx1() {
+  const target = document.getElementById('exContent');
+  
+  const items = [
+    { text: "Livret d'épargne : 85 €", answer: "avoirs" },
+    { text: "VTT : 180 €", answer: "avoirs" },
+    { text: "Console de jeux : 150 €", answer: "avoirs" },
+    { text: "Meubles de sa chambre : 800 €", answer: "avoirs" },
+    { text: "Trottinette électrique : 250 €", answer: "avoirs" },
+    { text: "Prêt à sa sœur Emma : 15 €", answer: "avoirs" },
+    { text: "Avance à son ami Théo : 30 €", answer: "avoirs" },
+    { text: "Bibliothèque : 400 €", answer: "avoirs" },
+    { text: "Avance de maman (voyage) : 650 €", answer: "dettes" },
+    { text: "Emprunt enceinte Bluetooth : 280 €", answer: "dettes" },
+  ];
+  
+  shuffle(items);
+  
+  target.innerHTML = `
+    <div class="theory-box">
+      <div class="theory-title">💡 Rappel théorique</div>
+      Les <strong>AVOIRS</strong> sont tout ce que tu possèdes ou ce qu'on te doit (y compris les prêts que tu as faits à d'autres).<br>
+      Les <strong>DETTES</strong> sont tout ce que tu dois à quelqu'un (emprunts, avances reçues…).<br>
+      <span class="hint-btn" onclick="toggleHint('h1')">🔍 Astuce : Prêt vs Emprunt</span>
+      <div class="hint-content" id="h1">
+        Un <strong>PRÊT</strong> que tu fais à quelqu'un = AVOIR (on te doit de l'argent) 💰<br>
+        Un <strong>EMPRUNT</strong> que tu fais = DETTE (tu dois de l'argent) 📉
+      </div>
+    </div>
+    <div class="game-area">
+      <div class="scenario-box">
+        <div class="scenario-name">📋 Le patrimoine de Lucas</div>
+        Lucas est un élève de 16 ans. Voici la liste de ses possessions et de ses engagements financiers. Classe chaque élément en le glissant dans la bonne colonne.
+      </div>
+      <div class="dnd-container">
+        <div class="dnd-items" id="ex1-source">
+          ${items.map((it, i) => `<div class="dnd-item" draggable="true" data-idx="${i}" data-answer="${it.answer}">${it.text}</div>`).join('')}
+        </div>
+        <div class="drop-zones">
+          <div class="drop-zone" id="ex1-avoirs" data-zone="avoirs">
+            <div class="zone-title avoirs">✅ AVOIRS</div>
+            <div class="zone-items"></div>
+          </div>
+          <div class="drop-zone" id="ex1-dettes" data-zone="dettes">
+            <div class="zone-title dettes">❌ DETTES</div>
+            <div class="zone-items"></div>
+          </div>
+        </div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="checkEx1()">✓ Vérifier mes réponses</button>
+        <button class="btn btn-secondary" onclick="resetEx1()">↻ Recommencer</button>
+      </div>
+      <div class="feedback" id="ex1-feedback"></div>
+    </div>
+  `;
+  
+  initDragDrop('ex1');
+}
+
+function initDragDrop(prefix) {
+  const items = document.querySelectorAll(`#${prefix}-source .dnd-item`);
+  const zones = document.querySelectorAll(`#${prefix}-avoirs, #${prefix}-dettes, #${prefix}-actif-immo-inc, #${prefix}-actif-immo-corp, #${prefix}-actif-circ, #${prefix}-cap-propres, #${prefix}-dettes-lt, #${prefix}-dettes-ct`);
+  const source = document.getElementById(`${prefix}-source`);
+  
+  let draggedEl = null;
+  
+  items.forEach(item => {
+    item.addEventListener('dragstart', e => {
+      draggedEl = item;
+      item.style.opacity = '0.4';
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    item.addEventListener('dragend', () => {
+      if (draggedEl) draggedEl.style.opacity = '1';
+      draggedEl = null;
+      document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drag-over'));
+    });
+    // Touch support
+    item.addEventListener('click', () => {
+      if (item.classList.contains('selected-for-move')) {
+        item.classList.remove('selected-for-move');
+        item.style.outline = '';
+        return;
+      }
+      document.querySelectorAll('.dnd-item.selected-for-move').forEach(i => { i.classList.remove('selected-for-move'); i.style.outline = ''; });
+      item.classList.add('selected-for-move');
+      item.style.outline = '2px solid var(--accent-gold)';
+    });
+  });
+  
+  const allDropTargets = [...document.querySelectorAll('.drop-zone')];
+  if (source) allDropTargets.push(source);
+  
+  allDropTargets.forEach(zone => {
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      if (!draggedEl) return;
+      const target = zone.querySelector('.zone-items') || zone;
+      target.appendChild(draggedEl);
+      draggedEl.style.opacity = '1';
+      draggedEl.classList.remove('correct', 'wrong');
+    });
+    // Click-to-place for touch
+    zone.addEventListener('click', (e) => {
+      if (e.target.classList.contains('dnd-item')) return;
+      const selected = document.querySelector('.dnd-item.selected-for-move');
+      if (!selected) return;
+      const target = zone.querySelector('.zone-items') || zone;
+      target.appendChild(selected);
+      selected.classList.remove('selected-for-move');
+      selected.style.outline = '';
+      selected.classList.remove('correct', 'wrong');
+    });
+  });
+}
+
+function checkEx1() {
+  const avoirsZone = document.querySelector('#ex1-avoirs .zone-items');
+  const dettesZone = document.querySelector('#ex1-dettes .zone-items');
+  const source = document.getElementById('ex1-source');
+  
+  let correct = 0;
+  const total = 10;
+  
+  [...avoirsZone.children, ...dettesZone.children].forEach(item => {
+    const answer = item.dataset.answer;
+    const zone = item.closest('.drop-zone').dataset.zone;
+    if (answer === zone) {
+      item.classList.add('correct');
+      item.classList.remove('wrong');
+      correct++;
+    } else {
+      item.classList.add('wrong');
+      item.classList.remove('correct');
+    }
+  });
+  
+  const remaining = source.querySelectorAll('.dnd-item').length;
+  
+  const fb = document.getElementById('ex1-feedback');
+  fb.classList.add('show');
+  
+  if (remaining > 0) {
+    fb.className = 'feedback show info';
+    fb.textContent = `⚠️ Il reste ${remaining} élément(s) à classer !`;
+    return;
+  }
+  
+  if (correct === total) {
+    fb.className = 'feedback show success';
+    fb.textContent = `🎉 Parfait ! ${correct}/${total} — Tu maîtrises la distinction Avoirs/Dettes !`;
+  } else if (correct >= 7) {
+    fb.className = 'feedback show success';
+    fb.textContent = `👍 Bien joué ! ${correct}/${total} — Les éléments en rouge sont mal placés. Rappelle-toi : un PRÊT à quelqu'un est un AVOIR !`;
+  } else {
+    fb.className = 'feedback show error';
+    fb.textContent = `${correct}/${total} — Relis la théorie ! Un emprunt/avance reçue = dette. Un prêt/avance donnée = avoir.`;
+  }
+  
+  state.scores[1] = correct;
+  state.maxScores[1] = total;
+  if (correct >= 7) state.completed.add(1);
+  saveState();
+  
+  if (correct >= 7) {
+    showContinueButton('ex1-feedback', 1, correct, total);
+  }
+}
+
+function resetEx1() {
+  startExercise(1);
+}
+
+// =======================================
+// EXERCISE 2: Calculate Capital
+// =======================================
+function buildEx2() {
+  const target = document.getElementById('exContent');
+  
+  target.innerHTML = `
+    <div class="theory-box">
+      <div class="theory-title">💡 Rappel théorique</div>
+      <div class="formula">CAPITAL = AVOIRS − DETTES</div><br>
+      Le <strong>capital</strong> représente la richesse réelle. C'est ce qui reste après avoir remboursé toutes les dettes.
+    </div>
+    <div class="game-area">
+      <div class="scenario-box">
+        <div class="scenario-name">🧮 Trois scénarios à résoudre</div>
+        Pour chaque situation, calcule le total des avoirs, le total des dettes, puis le capital.
+      </div>
+      
+      <!-- Scénario A -->
+      <h4 style="color:var(--accent-blue); margin-bottom:10px;">A) Emma, étudiante</h4>
+      <p style="font-size:0.88rem; color:var(--text-dim); margin-bottom:12px;">
+        Smartphone : 350 €, Compte épargne : 220 €, Argent prêté à une amie : 40 €, 
+        Emprunt auprès de ses parents : 150 €, Vélo : 180 €
+      </p>
+      <div class="calc-group">
+        <div class="calc-field"><label>Total Avoirs (€)</label><input type="number" id="ex2-a-avoirs" placeholder="?"></div>
+        <div class="calc-field"><label>Total Dettes (€)</label><input type="number" id="ex2-a-dettes" placeholder="?"></div>
+        <div class="calc-field"><label>Capital (€)</label><input type="number" id="ex2-a-capital" placeholder="?"></div>
+      </div>
+      
+      <hr style="border-color:var(--border); margin: 20px 0;">
+      
+      <!-- Scénario B -->
+      <h4 style="color:var(--accent-purple); margin-bottom:10px;">B) Tom, jeune travailleur</h4>
+      <p style="font-size:0.88rem; color:var(--text-dim); margin-bottom:12px;">
+        Voiture d'occasion : 4 500 €, Compte courant : 1 200 €, Prêt auto bancaire : 3 000 €,
+        Mobilier d'appartement : 2 800 €, Facture d'électricité impayée : 180 €, Caution récupérable : 600 €
+      </p>
+      <div class="calc-group">
+        <div class="calc-field"><label>Total Avoirs (€)</label><input type="number" id="ex2-b-avoirs" placeholder="?"></div>
+        <div class="calc-field"><label>Total Dettes (€)</label><input type="number" id="ex2-b-dettes" placeholder="?"></div>
+        <div class="calc-field"><label>Capital (€)</label><input type="number" id="ex2-b-capital" placeholder="?"></div>
+      </div>
+      
+      <hr style="border-color:var(--border); margin: 20px 0;">
+      
+      <!-- Scénario C -->
+      <h4 style="color:var(--accent-orange); margin-bottom:10px;">C) Sophie, indépendante</h4>
+      <p style="font-size:0.88rem; color:var(--text-dim); margin-bottom:12px;">
+        Bureau et chaise : 700 €, Ordinateur portable : 1 100 €, Compte pro BNP : 3 400 €,
+        Créance sur un client : 850 €, Emprunt bancaire : 5 000 €, Facture comptable à payer : 320 €, Caisse : 150 €
+      </p>
+      <div class="calc-group">
+        <div class="calc-field"><label>Total Avoirs (€)</label><input type="number" id="ex2-c-avoirs" placeholder="?"></div>
+        <div class="calc-field"><label>Total Dettes (€)</label><input type="number" id="ex2-c-dettes" placeholder="?"></div>
+        <div class="calc-field"><label>Capital (€)</label><input type="number" id="ex2-c-capital" placeholder="?"></div>
+      </div>
+      
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="checkEx2()">✓ Vérifier mes calculs</button>
+      </div>
+      <div class="feedback" id="ex2-feedback"></div>
+    </div>
+  `;
+}
+
+function checkEx2() {
+  const answers = {
+    'a-avoirs': 790, 'a-dettes': 150, 'a-capital': 640,
+    'b-avoirs': 9100, 'b-dettes': 3180, 'b-capital': 5920,
+    'c-avoirs': 6200, 'c-dettes': 5320, 'c-capital': 880
+  };
+  
+  let correct = 0;
+  const total = 9;
+  
+  Object.entries(answers).forEach(([key, val]) => {
+    const input = document.getElementById(`ex2-${key}`);
+    const userVal = parseFloat(input.value);
+    if (userVal === val) {
+      input.classList.add('correct-input');
+      input.classList.remove('wrong-input');
+      correct++;
+    } else {
+      input.classList.add('wrong-input');
+      input.classList.remove('correct-input');
+    }
+  });
+  
+  const fb = document.getElementById('ex2-feedback');
+  fb.classList.add('show');
+  
+  if (correct === total) {
+    fb.className = 'feedback show success';
+    fb.textContent = `🎉 Parfait ! ${correct}/${total} — La formule Capital = Avoirs - Dettes n'a plus de secret pour toi !`;
+  } else if (correct >= 6) {
+    fb.className = 'feedback show success';
+    fb.textContent = `👍 Bien ! ${correct}/${total} — Vérifie les champs en rouge. N'oublie pas : un prêt fait = avoir, une caution récupérable = avoir.`;
+  } else {
+    fb.className = 'feedback show error';
+    fb.textContent = `${correct}/${total} — Reprends chaque scénario. Additionne d'abord tous les avoirs, puis toutes les dettes, enfin soustrais.`;
+  }
+  
+  state.scores[2] = correct;
+  state.maxScores[2] = total;
+  if (correct >= 6) state.completed.add(2);
+  saveState();
+  
+  if (correct >= 6) setTimeout(() => showContinueButton('ex2-feedback', 2, correct, total), 100);
+}
+
+// =======================================
+// EXERCISE 3: Vocabulary Quiz
+// =======================================
+function buildEx3() {
+  const target = document.getElementById('exContent');
+  
+  const questions = [
+    {
+      q: "L'ensemble des avoirs et des dettes d'une personne ou d'une entreprise s'appelle :",
+      options: ["Le capital", "Le patrimoine", "Le bilan", "La créance"],
+      correct: 1
+    },
+    {
+      q: "La différence entre les avoirs et les dettes (= richesse nette) s'appelle :",
+      options: ["Le patrimoine", "L'emprunt", "Le capital", "Le passif"],
+      correct: 2
+    },
+    {
+      q: "Lucas prête 50 € à son ami Théo. Pour Lucas, cette somme est :",
+      options: ["Une dette", "Un emprunt", "Un avoir (créance)", "Un passif"],
+      correct: 2
+    },
+    {
+      q: "Marie emprunte 200 € à la banque. Pour Marie, cette somme est :",
+      options: ["Un avoir", "Un prêt", "Une créance", "Une dette"],
+      correct: 3
+    },
+    {
+      q: "L'argent qu'un client doit à l'entreprise s'appelle :",
+      options: ["Un emprunt", "Un fournisseur", "Une créance", "Un capital"],
+      correct: 2
+    },
+    {
+      q: "Dans un bilan, l'ACTIF représente :",
+      options: ["Ce que l'entreprise doit", "D'où vient l'argent", "Ce que l'entreprise possède", "Les bénéfices"],
+      correct: 2
+    },
+    {
+      q: "Dans un bilan, le PASSIF représente :",
+      options: ["Les stocks de l'entreprise", "L'origine des ressources (d'où vient l'argent)", "Les créances clients", "Les immobilisations"],
+      correct: 1
+    },
+    {
+      q: "Un terrain acheté par l'entreprise est classé dans :",
+      options: ["Les actifs circulants", "Les capitaux propres", "Les actifs immobilisés corporels", "Les dettes à plus d'un an"],
+      correct: 2
+    },
+    {
+      q: "Les marchandises en stock sont classées dans :",
+      options: ["Les immobilisations corporelles", "Les actifs circulants", "Les capitaux propres", "Les dettes à court terme"],
+      correct: 1
+    },
+    {
+      q: "La règle fondamentale du bilan est :",
+      options: ["Actif > Passif", "Actif < Passif", "Actif = Passif", "Capital = Passif"],
+      correct: 2
+    }
+  ];
+  
+  let currentQ = 0;
+  let score = 0;
+  
+  function renderQuestion() {
+    const q = questions[currentQ];
+    target.innerHTML = `
+      <div class="theory-box">
+        <div class="theory-title">📖 Quiz Vocabulaire</div>
+        Question <strong>${currentQ + 1}</strong> sur <strong>${questions.length}</strong> — Choisis la bonne réponse.
+      </div>
+      <div class="game-area">
+        <div class="quiz-question">
+          <div class="q-text"><span class="q-num">${currentQ + 1}.</span>${q.q}</div>
+          <div class="quiz-options" id="ex3-options">
+            ${q.options.map((opt, i) => `<div class="quiz-option" data-idx="${i}" onclick="selectEx3Option(this, ${i}, ${q.correct})">${opt}</div>`).join('')}
+          </div>
+        </div>
+        <div class="feedback" id="ex3-feedback"></div>
+        <div id="ex3-next-area"></div>
+      </div>
+    `;
+  }
+  
+  renderQuestion();
+  
+  window.selectEx3Option = function(el, idx, correctIdx) {
+    const options = document.querySelectorAll('#ex3-options .quiz-option');
+    if (options[0].classList.contains('disabled')) return;
+    
+    options.forEach(o => o.classList.add('disabled'));
+    
+    if (idx === correctIdx) {
+      el.classList.add('correct-answer');
+      score++;
+      showFeedback('ex3-feedback', 'success', '✅ Correct !');
+    } else {
+      el.classList.add('wrong-answer');
+      options[correctIdx].classList.add('correct-answer');
+      showFeedback('ex3-feedback', 'error', '❌ Incorrect — la bonne réponse est en vert.');
+    }
+    
+    // Show a "next" button instead of auto-advancing
+    const btnArea = document.getElementById('ex3-next-area');
+    btnArea.innerHTML = '';
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-primary';
+    btn.style.marginTop = '12px';
+    currentQ++;
+    if (currentQ < questions.length) {
+      btn.textContent = 'Question suivante → (' + (currentQ + 1) + '/' + questions.length + ')';
+      btn.onclick = () => renderQuestion();
+    } else {
+      btn.textContent = '📊 Voir mon résultat';
+      btn.onclick = () => {
+        state.scores[3] = score;
+        state.maxScores[3] = questions.length;
+        if (score >= 7) state.completed.add(3);
+        saveState();
+        showModal(3, score, questions.length);
+      };
+    }
+    btnArea.appendChild(btn);
+  };
+}
+
+// =======================================
+// EXERCISE 4: Classify Enterprise Elements
+// =======================================
+function buildEx4() {
+  const target = document.getElementById('exContent');
+  
+  const items = [
+    { text: "Magasin (bâtiment)", answer: "actif-immo-corp" },
+    { text: "Enseigne commerciale", answer: "actif-immo-inc" },
+    { text: "Machine à coudre", answer: "actif-immo-corp" },
+    { text: "Présentoirs", answer: "actif-immo-corp" },
+    { text: "Table de travail", answer: "actif-immo-corp" },
+    { text: "Vêtements en stock", answer: "actif-circ" },
+    { text: "Compte BNP Paribas", answer: "actif-circ" },
+    { text: "Caisse (espèces)", answer: "actif-circ" },
+    { text: "Créance cliente Sophie", answer: "actif-circ" },
+    { text: "Capital souscrit", answer: "cap-propres" },
+    { text: "Emprunt Belfius (5 ans)", answer: "dettes-lt" },
+    { text: "Fournisseur Zara (30 jours)", answer: "dettes-ct" },
+  ];
+  
+  shuffle(items);
+  
+  target.innerHTML = `
+    <div class="theory-box">
+      <div class="theory-title">💡 Rappel : Structure du Bilan</div>
+      <strong>ACTIF</strong> = ce que l'entreprise possède → Immobilisations (incorporelles / corporelles) + Actifs circulants (stocks, créances, disponibilités)<br>
+      <strong>PASSIF</strong> = d'où vient l'argent → Capitaux propres + Dettes à +1 an + Dettes à -1 an<br>
+      <span class="hint-btn" onclick="toggleHint('h4')">🔍 Incorporel vs Corporel ?</span>
+      <div class="hint-content" id="h4">
+        <strong>Incorporel</strong> = qu'on ne peut pas toucher physiquement (enseigne, brevet, logiciel, fonds de commerce…)<br>
+        <strong>Corporel</strong> = qu'on peut toucher (bâtiment, machine, véhicule, mobilier…)
+      </div>
+    </div>
+    <div class="game-area">
+      <div class="scenario-box">
+        <div class="scenario-name">👗 Boutique Mode — Prêt-à-porter & Retouches</div>
+        Classe chaque élément dans la bonne catégorie du bilan. Clique sur un élément puis clique sur la zone cible.
+      </div>
+      <div class="dnd-container">
+        <div class="dnd-items" id="ex4-source">
+          ${items.map((it, i) => `<div class="dnd-item" draggable="true" data-idx="${i}" data-answer="${it.answer}">${it.text}</div>`).join('')}
+        </div>
+        <div class="drop-zones six-zones">
+          <div class="drop-zone" id="ex4-actif-immo-inc" data-zone="actif-immo-inc">
+            <div class="zone-title actif-immo-inc">🧠 Immob. incorporelles</div>
+            <div class="zone-items"></div>
+          </div>
+          <div class="drop-zone" id="ex4-actif-immo-corp" data-zone="actif-immo-corp">
+            <div class="zone-title actif-immo-corp">🏗️ Immob. corporelles</div>
+            <div class="zone-items"></div>
+          </div>
+          <div class="drop-zone" id="ex4-actif-circ" data-zone="actif-circ">
+            <div class="zone-title actif-circ">🔄 Actifs circulants</div>
+            <div class="zone-items"></div>
+          </div>
+          <div class="drop-zone" id="ex4-cap-propres" data-zone="cap-propres">
+            <div class="zone-title cap-propres">💎 Capitaux propres</div>
+            <div class="zone-items"></div>
+          </div>
+          <div class="drop-zone" id="ex4-dettes-lt" data-zone="dettes-lt">
+            <div class="zone-title dettes-lt">📅 Dettes > 1 an</div>
+            <div class="zone-items"></div>
+          </div>
+          <div class="drop-zone" id="ex4-dettes-ct" data-zone="dettes-ct">
+            <div class="zone-title dettes-ct">⏰ Dettes < 1 an</div>
+            <div class="zone-items"></div>
+          </div>
+        </div>
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="checkEx4()">✓ Vérifier</button>
+        <button class="btn btn-secondary" onclick="startExercise(4)">↻ Recommencer</button>
+      </div>
+      <div class="feedback" id="ex4-feedback"></div>
+    </div>
+  `;
+  
+  initDragDropMulti('ex4', ['actif-immo-inc', 'actif-immo-corp', 'actif-circ', 'cap-propres', 'dettes-lt', 'dettes-ct']);
+}
+
+function initDragDropMulti(prefix, zoneIds) {
+  const source = document.getElementById(`${prefix}-source`);
+  const items = source.querySelectorAll('.dnd-item');
+  let draggedEl = null;
+  
+  items.forEach(item => {
+    item.addEventListener('dragstart', e => {
+      draggedEl = item;
+      item.style.opacity = '0.4';
+    });
+    item.addEventListener('dragend', () => {
+      if (draggedEl) draggedEl.style.opacity = '1';
+      draggedEl = null;
+      document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drag-over'));
+    });
+    item.addEventListener('click', () => {
+      if (item.classList.contains('selected-for-move')) {
+        item.classList.remove('selected-for-move');
+        item.style.outline = '';
+        return;
+      }
+      document.querySelectorAll('.dnd-item.selected-for-move').forEach(i => { i.classList.remove('selected-for-move'); i.style.outline = ''; });
+      item.classList.add('selected-for-move');
+      item.style.outline = '2px solid var(--accent-gold)';
+    });
+  });
+  
+  const zones = zoneIds.map(id => document.getElementById(`${prefix}-${id}`));
+  [...zones, source].forEach(zone => {
+    if (!zone) return;
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      if (!draggedEl) return;
+      const target = zone.querySelector('.zone-items') || zone;
+      target.appendChild(draggedEl);
+      draggedEl.style.opacity = '1';
+      draggedEl.classList.remove('correct', 'wrong');
+    });
+    zone.addEventListener('click', (e) => {
+      if (e.target.classList.contains('dnd-item')) return;
+      const selected = document.querySelector('.dnd-item.selected-for-move');
+      if (!selected) return;
+      const target = zone.querySelector('.zone-items') || zone;
+      target.appendChild(selected);
+      selected.classList.remove('selected-for-move');
+      selected.style.outline = '';
+      selected.classList.remove('correct', 'wrong');
+    });
+  });
+}
+
+function checkEx4() {
+  const zones = document.querySelectorAll('#exContent .drop-zone');
+  const source = document.getElementById('ex4-source');
+  let correct = 0;
+  const total = 12;
+  
+  zones.forEach(zone => {
+    const zoneId = zone.dataset.zone;
+    zone.querySelectorAll('.dnd-item').forEach(item => {
+      if (item.dataset.answer === zoneId) {
+        item.classList.add('correct');
+        item.classList.remove('wrong');
+        correct++;
+      } else {
+        item.classList.add('wrong');
+        item.classList.remove('correct');
+      }
+    });
+  });
+  
+  const remaining = source.querySelectorAll('.dnd-item').length;
+  const fb = document.getElementById('ex4-feedback');
+  fb.classList.add('show');
+  
+  if (remaining > 0) {
+    fb.className = 'feedback show info';
+    fb.textContent = `⚠️ Il reste ${remaining} élément(s) à classer !`;
+    return;
+  }
+  
+  if (correct === total) {
+    fb.className = 'feedback show success';
+    fb.textContent = `🎉 Parfait ! ${correct}/${total} — Tu maîtrises la structure du bilan !`;
+  } else if (correct >= 9) {
+    fb.className = 'feedback show success';
+    fb.textContent = `👍 Bien ! ${correct}/${total} — Vérifie les éléments en rouge.`;
+  } else {
+    fb.className = 'feedback show error';
+    fb.textContent = `${correct}/${total} — Relis la théorie sur la structure du bilan.`;
+  }
+  
+  state.scores[4] = correct;
+  state.maxScores[4] = total;
+  if (correct >= 9) state.completed.add(4);
+  saveState();
+  if (correct >= 9) showContinueButton('ex4-feedback', 4, correct, total);
+}
+
+// =======================================
+// EXERCISE 5: Liquidity & Exigibility
+// =======================================
+function buildEx5() {
+  const target = document.getElementById('exContent');
+  
+  target.innerHTML = `
+    <div class="theory-box">
+      <div class="theory-title">💡 Rappel : Liquidité & Exigibilité</div>
+      <strong>LIQUIDITÉ</strong> = rapidité avec laquelle un bien peut se transformer en argent. Au bilan, les actifs sont classés du <em>moins liquide</em> (terrains) au <em>plus liquide</em> (caisse).<br><br>
+      <strong>EXIGIBILITÉ</strong> = délai dans lequel une dette devra être remboursée. Au passif, on va du <em>moins exigible</em> (capitaux propres) au <em>plus exigible</em> (factures à payer).
+    </div>
+    <div class="game-area">
+      <div class="scenario-box">
+        <div class="scenario-name">🏭 Garage AutoPlus</div>
+        Classe les éléments ci-dessous dans le bon ordre.
+      </div>
+      
+      <h4 style="color:var(--accent-blue); margin-bottom:12px;">A) Actifs — Du MOINS liquide au PLUS liquide</h4>
+      <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:12px;">Glisse les éléments pour les remettre dans l'ordre correct (1 = moins liquide, 6 = plus liquide)</p>
+      <div class="order-list" id="ex5-liquidity"></div>
+      
+      <hr style="border-color:var(--border); margin: 24px 0;">
+      
+      <h4 style="color:var(--accent-gold); margin-bottom:12px;">B) Passifs — Du MOINS exigible au PLUS exigible</h4>
+      <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:12px;">Glisse les éléments pour les remettre dans l'ordre correct (1 = moins exigible, 5 = plus exigible)</p>
+      <div class="order-list" id="ex5-exigibility"></div>
+      
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="checkEx5()">✓ Vérifier l'ordre</button>
+        <button class="btn btn-secondary" onclick="startExercise(5)">↻ Recommencer</button>
+      </div>
+      <div class="feedback" id="ex5-feedback"></div>
+    </div>
+  `;
+  
+  // Liquidity items (correct order: terrain, bâtiment, outillage, stock pièces, créances clients, caisse)
+  const liqItems = [
+    { id: 'terrain', label: 'Terrain du garage', correctPos: 0 },
+    { id: 'batiment', label: 'Bâtiment / show-room', correctPos: 1 },
+    { id: 'outillage', label: 'Outillage et machines', correctPos: 2 },
+    { id: 'stock', label: 'Stock de pièces de rechange', correctPos: 3 },
+    { id: 'creances', label: 'Créances clients', correctPos: 4 },
+    { id: 'caisse', label: 'Caisse (espèces)', correctPos: 5 },
+  ];
+  
+  // Exigibility (correct: capital, réserves, emprunt 2 ans, fournisseur 60j, salaires)
+  const exigItems = [
+    { id: 'capital', label: 'Capital souscrit', correctPos: 0 },
+    { id: 'reserves', label: 'Réserves', correctPos: 1 },
+    { id: 'emprunt', label: 'Emprunt Belfius (2 ans)', correctPos: 2 },
+    { id: 'fournisseur', label: 'Fournisseur auto (60 jours)', correctPos: 3 },
+    { id: 'salaires', label: 'Salaires à payer', correctPos: 4 },
+  ];
+  
+  const shuffledLiq = [...liqItems].sort(() => Math.random() - 0.5);
+  const shuffledExig = [...exigItems].sort(() => Math.random() - 0.5);
+  
+  renderOrderList('ex5-liquidity', shuffledLiq);
+  renderOrderList('ex5-exigibility', shuffledExig);
+}
+
+function renderOrderList(containerId, items) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  items.forEach((item, i) => {
+    const el = document.createElement('div');
+    el.className = 'order-item';
+    el.dataset.id = item.id;
+    el.dataset.correctPos = item.correctPos;
+    el.draggable = true;
+    el.innerHTML = `
+      <span class="order-num">${i + 1}</span>
+      <span class="order-label">${item.label}</span>
+      <span class="drag-handle">⠿</span>
+    `;
+    container.appendChild(el);
+  });
+  
+  // Sortable via drag
+  let dragItem = null;
+  container.addEventListener('dragstart', e => {
+    dragItem = e.target.closest('.order-item');
+    if (dragItem) dragItem.style.opacity = '0.4';
+  });
+  container.addEventListener('dragend', () => {
+    if (dragItem) dragItem.style.opacity = '1';
+    dragItem = null;
+  });
+  container.addEventListener('dragover', e => {
+    e.preventDefault();
+    const target = e.target.closest('.order-item');
+    if (target && target !== dragItem) {
+      const rect = target.getBoundingClientRect();
+      const mid = rect.top + rect.height / 2;
+      if (e.clientY < mid) {
+        container.insertBefore(dragItem, target);
+      } else {
+        container.insertBefore(dragItem, target.nextSibling);
+      }
+    }
+  });
+  
+  // Touch: click swap
+  let selectedOrder = null;
+  container.addEventListener('click', e => {
+    const item = e.target.closest('.order-item');
+    if (!item) return;
+    if (selectedOrder && selectedOrder !== item) {
+      // Swap
+      const parent = container;
+      const items = [...parent.children];
+      const idx1 = items.indexOf(selectedOrder);
+      const idx2 = items.indexOf(item);
+      if (idx1 < idx2) {
+        parent.insertBefore(item, selectedOrder);
+        parent.insertBefore(selectedOrder, items[idx2 + 1] || null);
+      } else {
+        parent.insertBefore(selectedOrder, item);
+        parent.insertBefore(item, items[idx1 + 1] || null);
+      }
+      selectedOrder.style.outline = '';
+      selectedOrder = null;
+      // Renum
+      [...parent.children].forEach((c, i) => { c.querySelector('.order-num').textContent = i + 1; });
+    } else if (selectedOrder === item) {
+      selectedOrder.style.outline = '';
+      selectedOrder = null;
+    } else {
+      selectedOrder = item;
+      item.style.outline = '2px solid var(--accent-gold)';
+    }
+  });
+  
+  // Update numbers on drag
+  new MutationObserver(() => {
+    [...container.children].forEach((c, i) => { c.querySelector('.order-num').textContent = i + 1; });
+  }).observe(container, { childList: true });
+}
+
+function checkEx5() {
+  let correct = 0;
+  const total = 11;
+  
+  ['ex5-liquidity', 'ex5-exigibility'].forEach(cid => {
+    const items = document.querySelectorAll(`#${cid} .order-item`);
+    items.forEach((item, i) => {
+      if (parseInt(item.dataset.correctPos) === i) {
+        item.style.borderColor = 'var(--accent-green)';
+        item.style.background = 'rgba(16,185,129,0.08)';
+        correct++;
+      } else {
+        item.style.borderColor = 'var(--accent-red)';
+        item.style.background = 'rgba(239,68,68,0.08)';
+      }
+    });
+  });
+  
+  const fb = document.getElementById('ex5-feedback');
+  fb.classList.add('show');
+  
+  if (correct === total) {
+    fb.className = 'feedback show success';
+    fb.textContent = `🎉 Parfait ! ${correct}/${total} — Tu comprends parfaitement la liquidité et l'exigibilité !`;
+  } else if (correct >= 8) {
+    fb.className = 'feedback show success';
+    fb.textContent = `👍 Bien ! ${correct}/${total} — Les éléments en vert sont bien placés.`;
+  } else {
+    fb.className = 'feedback show error';
+    fb.textContent = `${correct}/${total} — Rappelle-toi : du moins liquide/exigible en haut au plus liquide/exigible en bas.`;
+  }
+  
+  state.scores[5] = correct;
+  state.maxScores[5] = total;
+  if (correct >= 8) state.completed.add(5);
+  saveState();
+  if (correct >= 8) showContinueButton('ex5-feedback', 5, correct, total);
+}
+
+// =======================================
+// EXERCISE 6: Build Bilan
+// =======================================
+function buildEx6() {
+  const target = document.getElementById('exContent');
+  
+  target.innerHTML = `
+    <div class="theory-box">
+      <div class="theory-title">💡 Rappel : Le Bilan</div>
+      Le bilan est un tableau en deux parties : <strong>ACTIF</strong> (ce que l'entreprise possède) et <strong>PASSIF</strong> (d'où vient l'argent).<br>
+      <div class="formula">TOTAL ACTIF = TOTAL PASSIF</div>
+    </div>
+    <div class="game-area">
+      <div class="scenario-box">
+        <div class="scenario-name">🥖 Boulangerie « Au Pain Doré » — Création le 15 février</div>
+        Voici les éléments à la date de création : Immeuble 80 000 €, Comptoir réfrigéré 2 000 €, Caisse enregistreuse 1 200 €, 
+        Étagères 900 €, Emprunt BNP Paribas 65 000 €, Compte bpost 8 000 €, Facture fournisseur farine 850 €, 
+        Fours 3 000 €, Pétrin 2 500 €.
+      </div>
+      
+      <p style="font-size:0.9rem; margin-bottom:16px;">Complete le bilan ci-dessous en indiquant les montants dans les bonnes cases. Le capital est à calculer.</p>
+      
+      <div class="bilan-split">
+        <div class="bilan-side">
+          <div class="bilan-side-header actif-h">ACTIF</div>
+          <div class="bilan-rows">
+            <div class="bilan-row sub-cat">Actifs immobilisés</div>
+            <div class="bilan-row"><span>Construction</span><input type="number" id="b6-construction" placeholder="?"></div>
+            <div class="bilan-row"><span>Inst., machines, outillage</span><input type="number" id="b6-machines" placeholder="?"></div>
+            <div class="bilan-row"><span>Mobilier</span><input type="number" id="b6-mobilier" placeholder="?"></div>
+            <div class="bilan-row sub-cat">Actifs circulants</div>
+            <div class="bilan-row"><span>Bpost banque</span><input type="number" id="b6-banque" placeholder="?"></div>
+            <div class="bilan-row total-row"><span>TOTAL ACTIF</span><input type="number" id="b6-total-actif" placeholder="?"></div>
+          </div>
+        </div>
+        <div class="bilan-side">
+          <div class="bilan-side-header passif-h">PASSIF</div>
+          <div class="bilan-rows">
+            <div class="bilan-row sub-cat">Capitaux propres</div>
+            <div class="bilan-row"><span>Capital souscrit</span><input type="number" id="b6-capital" placeholder="?"></div>
+            <div class="bilan-row sub-cat">Dettes à + d'un an</div>
+            <div class="bilan-row"><span>Établis. de crédit</span><input type="number" id="b6-emprunt" placeholder="?"></div>
+            <div class="bilan-row sub-cat">Dettes à - d'un an</div>
+            <div class="bilan-row"><span>Fournisseurs</span><input type="number" id="b6-fournisseurs" placeholder="?"></div>
+            <div class="bilan-row total-row"><span>TOTAL PASSIF</span><input type="number" id="b6-total-passif" placeholder="?"></div>
+          </div>
+        </div>
+      </div>
+      
+      <span class="hint-btn" onclick="toggleHint('h6')">🔍 Aide : Comment classer les éléments ?</span>
+      <div class="hint-content" id="h6">
+        <strong>Construction</strong> = immeuble<br>
+        <strong>Inst., machines</strong> = fours + pétrin + comptoir réfrigéré + caisse enregistreuse<br>
+        <strong>Mobilier</strong> = étagères<br>
+        <strong>Capital</strong> = Total Actif − Total dettes (emprunt + fournisseurs)<br>
+        N'oublie pas : TOTAL ACTIF = TOTAL PASSIF !
+      </div>
+      
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="checkEx6()">✓ Vérifier le bilan</button>
+      </div>
+      <div class="feedback" id="ex6-feedback"></div>
+    </div>
+  `;
+}
+
+function checkEx6() {
+  const answers = {
+    'b6-construction': 80000,
+    'b6-machines': 6700,
+    'b6-mobilier': 2900,
+    'b6-banque': 8000,
+    'b6-total-actif': 97600,
+    'b6-capital': 31750,
+    'b6-emprunt': 65000,
+    'b6-fournisseurs': 850,
+    'b6-total-passif': 97600
+  };
+  
+  let correct = 0;
+  const total = 9;
+  
+  Object.entries(answers).forEach(([id, val]) => {
+    const input = document.getElementById(id);
+    const userVal = parseFloat(input.value);
+    if (userVal === val) {
+      input.classList.add('correct-input');
+      input.classList.remove('wrong-input');
+      correct++;
+    } else {
+      input.classList.add('wrong-input');
+      input.classList.remove('correct-input');
+    }
+  });
+  
+  const fb = document.getElementById('ex6-feedback');
+  fb.classList.add('show');
+  
+  if (correct === total) {
+    fb.className = 'feedback show success';
+    fb.textContent = `🎉 Parfait ! ${correct}/${total} — Tu sais construire un bilan complet !`;
+  } else if (correct >= 6) {
+    fb.className = 'feedback show success';
+    fb.textContent = `👍 Bien ! ${correct}/${total} — Vérifie les cases en rouge. Inst. & machines = fours + pétrin + comptoir + caisse enreg.`;
+  } else {
+    fb.className = 'feedback show error';
+    fb.textContent = `${correct}/${total} — Utilise l'aide ci-dessous pour comprendre le classement.`;
+  }
+  
+  state.scores[6] = correct;
+  state.maxScores[6] = total;
+  if (correct >= 6) state.completed.add(6);
+  saveState();
+  if (correct >= 6) showContinueButton('ex6-feedback', 6, correct, total);
+}
+
+// =======================================
+// EXERCISE 7: Final Challenge
+// =======================================
+function buildEx7() {
+  const target = document.getElementById('exContent');
+  
+  target.innerHTML = `
+    <div class="theory-box">
+      <div class="theory-title">🏆 Défi Final — Toutes les compétences réunies !</div>
+      Ce dernier exercice combine classification, calcul du capital et construction du bilan. Bonne chance !
+    </div>
+    <div class="game-area">
+      <div class="scenario-box">
+        <div class="scenario-name">🍽️ Restaurant « Le Gourmet » — Situation au 31 décembre</div>
+        Le restaurant « Le Gourmet » a été fondé il y a 3 ans à Mons. Voici les éléments de son patrimoine au 31 décembre :<br><br>
+        Immeuble : 120 000 €&nbsp;·&nbsp;
+        Licence d'exploitation : 5 000 €&nbsp;·&nbsp;
+        Mobilier de salle : 12 000 €&nbsp;·&nbsp;
+        Matériel de cuisine : 25 000 €&nbsp;·&nbsp;
+        Camionnette de livraison : 18 000 €&nbsp;·&nbsp;
+        Stock de boissons : 3 200 €&nbsp;·&nbsp;
+        Stock de denrées alimentaires : 1 800 €&nbsp;·&nbsp;
+        Créances sur clients (repas d'entreprise) : 2 400 €&nbsp;·&nbsp;
+        Compte ING : 9 500 €&nbsp;·&nbsp;
+        Caisse : 800 €&nbsp;·&nbsp;
+        Emprunt Belfius (8 ans) : 95 000 €&nbsp;·&nbsp;
+        Fournisseur de boissons : 2 100 €&nbsp;·&nbsp;
+        TVA à payer : 1 850 €&nbsp;·&nbsp;
+        Salaires à payer : 3 750 €
+      </div>
+      
+      <!-- Part A: Classification -->
+      <h4 style="color:var(--accent-gold); margin-bottom:12px;">Partie A — Classe chaque élément</h4>
+      <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:12px;">Pour chaque élément, choisis la bonne catégorie du bilan.</p>
+      
+      <div class="bilan-table-wrap">
+        <table class="bilan-table" id="ex7-table">
+          <thead>
+            <tr>
+              <th>Élément</th>
+              <th>Montant</th>
+              <th>Catégorie</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      
+      <hr style="border-color:var(--border); margin: 24px 0;">
+      
+      <!-- Part B: Totals & Capital -->
+      <h4 style="color:var(--accent-gold); margin-bottom:12px;">Partie B — Calcule les totaux et le capital</h4>
+      <div class="calc-group">
+        <div class="calc-field"><label>Total Actif (€)</label><input type="number" id="ex7-total-actif" placeholder="?"></div>
+        <div class="calc-field"><label>Total Dettes (€)</label><input type="number" id="ex7-total-dettes" placeholder="?"></div>
+        <div class="calc-field"><label>Capital (€)</label><input type="number" id="ex7-capital" placeholder="?"></div>
+      </div>
+      <p style="font-size:0.82rem; color:var(--text-dim);">Rappel : Capital = Total Actif − Total Dettes &nbsp;|&nbsp; Total Actif = Total Passif</p>
+      
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="checkEx7()">✓ Vérifier tout</button>
+        <button class="btn btn-secondary" onclick="startExercise(7)">↻ Recommencer</button>
+      </div>
+      <div class="feedback" id="ex7-feedback"></div>
+    </div>
+  `;
+  
+  const elements = [
+    { name: "Immeuble", amount: "120 000", answer: "immo-corp" },
+    { name: "Licence d'exploitation", amount: "5 000", answer: "immo-inc" },
+    { name: "Mobilier de salle", amount: "12 000", answer: "immo-corp" },
+    { name: "Matériel de cuisine", amount: "25 000", answer: "immo-corp" },
+    { name: "Camionnette de livraison", amount: "18 000", answer: "immo-corp" },
+    { name: "Stock de boissons", amount: "3 200", answer: "stock" },
+    { name: "Stock de denrées alimentaires", amount: "1 800", answer: "stock" },
+    { name: "Créances clients", amount: "2 400", answer: "creances" },
+    { name: "Compte ING", amount: "9 500", answer: "dispo" },
+    { name: "Caisse", amount: "800", answer: "dispo" },
+    { name: "Emprunt Belfius (8 ans)", amount: "95 000", answer: "dettes-lt" },
+    { name: "Fournisseur de boissons", amount: "2 100", answer: "dettes-ct" },
+    { name: "TVA à payer", amount: "1 850", answer: "dettes-ct" },
+    { name: "Salaires à payer", amount: "3 750", answer: "dettes-ct" },
+  ];
+  
+  const tbody = document.querySelector('#ex7-table tbody');
+  elements.forEach((el, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="col-label">${el.name}</td>
+      <td class="col-amount">${el.amount} €</td>
+      <td>
+        <select id="ex7-cat-${i}" data-answer="${el.answer}">
+          <option value="">— Choisir —</option>
+          <option value="immo-inc">Immob. incorporelle</option>
+          <option value="immo-corp">Immob. corporelle</option>
+          <option value="stock">Stock</option>
+          <option value="creances">Créance</option>
+          <option value="dispo">Disponibilité</option>
+          <option value="cap-propre">Capital propre</option>
+          <option value="dettes-lt">Dette > 1 an</option>
+          <option value="dettes-ct">Dette < 1 an</option>
+        </select>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function checkEx7() {
+  let correct = 0;
+  const totalCat = 14;
+  
+  // Check categories
+  for (let i = 0; i < totalCat; i++) {
+    const sel = document.getElementById(`ex7-cat-${i}`);
+    if (sel.value === sel.dataset.answer) {
+      sel.style.borderColor = 'var(--accent-green)';
+      sel.style.background = 'rgba(16,185,129,0.1)';
+      correct++;
+    } else {
+      sel.style.borderColor = 'var(--accent-red)';
+      sel.style.background = 'rgba(239,68,68,0.1)';
+    }
+  }
+  
+  // Check totals
+  const totalAnswers = { 'ex7-total-actif': 197700, 'ex7-total-dettes': 102700, 'ex7-capital': 95000 };
+  let calcCorrect = 0;
+  
+  Object.entries(totalAnswers).forEach(([id, val]) => {
+    const input = document.getElementById(id);
+    const userVal = parseFloat(input.value);
+    if (userVal === val) {
+      input.classList.add('correct-input');
+      input.classList.remove('wrong-input');
+      calcCorrect++;
+      correct++;
+    } else {
+      input.classList.add('wrong-input');
+      input.classList.remove('correct-input');
+    }
+  });
+  
+  const total = totalCat + 3;
+  const fb = document.getElementById('ex7-feedback');
+  fb.classList.add('show');
+  
+  if (correct === total) {
+    fb.className = 'feedback show success';
+    fb.textContent = `🎉 BRAVO ! ${correct}/${total} — Tu as réussi le défi final ! Tu maîtrises le patrimoine et le bilan comptable !`;
+  } else if (correct >= 13) {
+    fb.className = 'feedback show success';
+    fb.textContent = `👏 Excellent ! ${correct}/${total} — Presque parfait, vérifie les éléments en rouge.`;
+  } else if (correct >= 10) {
+    fb.className = 'feedback show info';
+    fb.textContent = `${correct}/${total} — C'est bien, mais revois les catégories. Total Actif = somme des avoirs = 197 700 €`;
+  } else {
+    fb.className = 'feedback show error';
+    fb.textContent = `${correct}/${total} — Reprends les exercices précédents pour consolider tes acquis avant de retenter.`;
+  }
+  
+  state.scores[7] = correct;
+  state.maxScores[7] = total;
+  if (correct >= 13) state.completed.add(7);
+  saveState();
+  if (correct >= 13) showContinueButton('ex7-feedback', 7, correct, total);
+}
+
+// =======================================
+// UTILITIES
+// =======================================
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function toggleHint(id) {
+  document.getElementById(id).classList.toggle('show');
+}
+
+function showFeedback(id, type, msg) {
+  const fb = document.getElementById(id);
+  fb.className = `feedback show ${type}`;
+  fb.textContent = msg;
+}
+
+// =======================================
+// CONTINUE BUTTON (replaces auto-modal)
+// =======================================
+function showContinueButton(feedbackId, exId, score, total) {
+  const fb = document.getElementById(feedbackId);
+  const existing = fb.parentElement.querySelector('.btn-continue-wrap');
+  if (existing) existing.remove();
+  
+  const wrap = document.createElement('div');
+  wrap.className = 'btn-continue-wrap';
+  wrap.style.marginTop = '16px';
+  
+  const btn = document.createElement('button');
+  btn.className = 'btn btn-success';
+  btn.textContent = exId < 7 ? '✓ Continuer vers l\'exercice suivant →' : '🏆 Voir le résultat final';
+  btn.onclick = () => showModal(exId, score, total);
+  wrap.appendChild(btn);
+  
+  fb.parentElement.appendChild(wrap);
+}
+
+// =======================================
+// MODAL
+// =======================================
+function showModal(exId, score, total) {
+  const pct = score / total;
+  const modal = document.getElementById('modal');
+  
+  document.getElementById('modalScore').textContent = `${score} / ${total}`;
+  
+  if (pct === 1) {
+    document.getElementById('modalEmoji').textContent = '🏆';
+    document.getElementById('modalTitle').textContent = 'Parfait !';
+    document.getElementById('modalMsg').textContent = 'Score impeccable, tu peux être fier de toi !';
+    launchConfetti();
+  } else if (pct >= 0.8) {
+    document.getElementById('modalEmoji').textContent = '🎉';
+    document.getElementById('modalTitle').textContent = 'Excellent travail !';
+    document.getElementById('modalMsg').textContent = 'Tu maîtrises bien cette notion. Tu peux passer à la suite !';
+    launchConfetti();
+  } else {
+    document.getElementById('modalEmoji').textContent = '👍';
+    document.getElementById('modalTitle').textContent = 'Bien joué !';
+    document.getElementById('modalMsg').textContent = 'Tu progresses bien. Tu peux continuer !';
+  }
+  
+  const nextBtn = document.getElementById('modalNextBtn');
+  const nextEx = EXERCISES.find(e => e.id === exId + 1);
+  if (nextEx) {
+    nextBtn.style.display = 'inline-flex';
+    nextBtn.textContent = `Exercice ${nextEx.id} →`;
+    nextBtn.onclick = () => { closeModal(); startExercise(nextEx.id); };
+  } else {
+    nextBtn.style.display = 'none';
+    document.getElementById('modalMsg').textContent = '🎓 Tu as terminé tous les exercices ! Bravo pour ton travail !';
+  }
+  
+  modal.classList.add('show');
+  updateProgress();
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+  backToMenu();
+}
+
+function goNextExercise() {}
+
+function launchConfetti() {
+  const container = document.getElementById('confettiContainer');
+  const colors = ['#f0b429', '#3b82f6', '#10b981', '#ef4444', '#a855f7', '#f97316', '#ec4899'];
+  
+  for (let i = 0; i < 60; i++) {
+    const conf = document.createElement('div');
+    conf.className = 'confetti';
+    conf.style.left = Math.random() * 100 + '%';
+    conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    conf.style.width = (Math.random() * 8 + 5) + 'px';
+    conf.style.height = (Math.random() * 8 + 5) + 'px';
+    conf.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    conf.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+    conf.style.animationDelay = (Math.random() * 0.8) + 's';
+    container.appendChild(conf);
+  }
+  
+  setTimeout(() => { container.innerHTML = ''; }, 4000);
+}
+
+// =======================================
+// INIT
+// =======================================
+renderMenu();
+</script>
+</body>
+</html>
